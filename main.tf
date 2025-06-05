@@ -36,19 +36,23 @@ resource "aws_iam_role_policy_attachment" "glue_policy_attach" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-# --- AWS Glue Crawler ---
 resource "aws_glue_crawler" "superstore_crawler" {
   name          = "luffyhourly"
   role          = aws_iam_role.glue_service_role.arn
   database_name = var.database_name
-  schedule      = "cron(0 * * * ? *)"  # Every hour
+  schedule      = "cron(0 * * * ? *)"  # Runs every hour
 
   s3_target {
     path = "s3://${aws_s3_bucket.superstore_bucket.bucket}/orders/"
   }
 
   configuration = jsonencode({
-    Version  = 1.0,
+    Version = 1.0,
+    CrawlerOutput = {
+      Partitions = {
+        AddOrUpdateBehavior = "InheritFromTable"
+      }
+    },
     Grouping = {
       TableGroupingPolicy = "CombineCompatibleSchemas"
     }
