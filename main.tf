@@ -1,17 +1,21 @@
-resource "aws_s3_bucket" "data" {
+# --- S3 Bucket for Storing Data and Athena Logs ---
+resource "aws_s3_bucket" "superstore_bucket" {
   bucket = var.bucket_name
+
+  tags = {
+    Name        = "Superstore Data Bucket"
+    Environment = "Dev"
+  }
 }
 
-resource "aws_s3_bucket_object" "orders_prefix" {
-  bucket = aws_s3_bucket.data.id
-  key    = "orders/"
+# Create an 'athena_logs/' folder in the S3 bucket
+resource "aws_s3_bucket_object" "athena_output_folder" {
+  bucket = aws_s3_bucket.superstore_bucket.id
+  key    = "athena_logs/"  # Creates a folder-like path
 }
 
-resource "aws_glue_catalog_database" "glue_db" {
-  name = "db_luffy_pipeline"  # Updated name to avoid AlreadyExistsException
-}
-
-resource "aws_iam_role" "glue_role" {
+# --- IAM Role for Glue ---
+resource "aws_iam_role" "glue_service_role" {
   name = "AWSGlueServiceRole-luffyhour"
 
   assume_role_policy = jsonencode({
@@ -26,35 +30,47 @@ resource "aws_iam_role" "glue_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "glue_service_policy" {
-  role       = aws_iam_role.glue_role.name
+# Attach Glue Service Policy
+resource "aws_iam_role_policy_attachment" "glue_policy_attach" {
+  role       = aws_iam_role.glue_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "s3_read_policy" {
-  role       = aws_iam_role.glue_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
-}
-
-resource "aws_glue_crawler" "crawler" {
+# --- AWS Glue Crawler ---
+resource "aws_glue_crawler" "superstore_crawler" {
   name          = "luffyhourly"
-  role          = aws_iam_role.glue_role.arn
-  database_name = aws_glue_catalog_database.glue_db.name
-  
+  role          = aws_iam_role.glue_service_role.arn
+  database_name = var.database_name
+  schedule      = "cron(0 * * * ? *)"  # Every hour
+
   s3_target {
-    path = "s3://${aws_s3_bucket.data.bucket}/orders/"
+    path = "s3://${aws_s3_bucket.superstore_bucket.bucket}/orders/"
   }
 
-  depends_on = [
-    aws_s3_bucket_object.orders_prefix
-  ]
+  configuration = jsonencode({
+    Version  = 1.0,
+    Grouping = {
+      TableGroupingPolicy = "CombineCompatibleSchemas"
+    }
+  })
 }
-# Athena Workgroup (optional but helpful for logging)
-resource "aws_athena_workgroup" "luffy_workgroup" {
-  name = "luffy_analytics"
+
+# --- Athena Database ---
+resource "aws_athena_database" "superstore_athena_db" {
+  name   = var.athena_database_name
+  bucket = aws_s3_bucket.superstore_bucket.id
+}
+
+# --- Athena Workgroup ---
+resource "aws_athena_workgroup" "superstore_workgroup" {
+  name = "luffy-workgroup"
 
   configuration {
     result_configuration {
-      output_location = "s3://${aws_s3_bucket.data.bucket}/athena_logs/"
+      output_location = "s3://${aws_s3_bucket.superstore_bucket.bucket}/athena_logs/"
     }
   }
+
+  force_destroy = true
+  state         = "ENABLED"
+}
