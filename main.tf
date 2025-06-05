@@ -1,50 +1,52 @@
-# Create an S3 bucket for storing Super Store data
-resource "aws_s3_bucket" "superstore_data" {
-  bucket = "luffybucketonepiece"
-
-  tags = {
-    Name        = "Luffy Superstore Data"
-    Environment = "Dev"
-    Project     = "Superstore Data Pipeline"
-  }
+resource "aws_s3_bucket" "data" {
+  bucket = var.bucket_name
 }
 
-# Glue Database
-resource "aws_glue_catalog_database" "luffy_db" {
-  name = "db_luffyonepiece"
+resource "aws_s3_bucket_object" "orders_prefix" {
+  bucket = aws_s3_bucket.data.id
+  key    = "orders/"
 }
 
-# IAM Role for Glue Crawler
-resource "aws_iam_role" "glue_crawler_role" {
+resource "aws_glue_catalog_database" "glue_db" {
+  name = "db_luffy_pipeline"  # Updated name to avoid AlreadyExistsException
+}
+
+resource "aws_iam_role" "glue_role" {
   name = "AWSGlueServiceRole-luffyhour"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [{
-      Action = "sts:AssumeRole"
+      Effect = "Allow",
       Principal = {
         Service = "glue.amazonaws.com"
-      }
-      Effect = "Allow"
-      Sid    = ""
+      },
+      Action = "sts:AssumeRole"
     }]
   })
 }
 
-# Attach policies to IAM role
-resource "aws_iam_role_policy_attachment" "glue_policy" {
-  role       = aws_iam_role.glue_crawler_role.name
+resource "aws_iam_role_policy_attachment" "glue_service_policy" {
+  role       = aws_iam_role.glue_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-# Glue Crawler to scan S3
-resource "aws_glue_crawler" "luffy_crawler" {
+resource "aws_iam_role_policy_attachment" "s3_read_policy" {
+  role       = aws_iam_role.glue_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+resource "aws_glue_crawler" "crawler" {
   name          = "luffyhourly"
-  role          = aws_iam_role.glue_crawler_role.arn
-  database_name = aws_glue_catalog_database.luffy_db.name
+  role          = aws_iam_role.glue_role.arn
+  database_name = aws_glue_catalog_database.glue_db.name
   schedule      = "cron(0 * * * ? *)"  # Every hour
 
   s3_target {
-    path = "s3://${aws_s3_bucket.superstore_data.bucket}/orders/"
+    path = "s3://${aws_s3_bucket.data.bucket}/orders/"
   }
+
+  depends_on = [
+    aws_s3_bucket_object.orders_prefix
+  ]
 }
