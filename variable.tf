@@ -39,3 +39,9 @@ variable "glue_role_name" {
   type        = string
   default     = "AWSGlueServiceRole-luffyhour"
 }
+
+# Athena Database Name
+variable "athena_database_name" {
+  description = "Name for Athena database"
+  default     = "db_luffyonepiece"
+}
