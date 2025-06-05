@@ -13,8 +13,8 @@ variable "aws_profile" {
 }
 
 # S3 Bucket Name
-variable "s3_bucket_name" {
-  description = "The name of the S3 bucket to store Superstore data"
+variable "bucket_name" {
+  description = "The name of the S3 bucket"
   type        = string
   default     = "luffybucketonepiece"
 }
