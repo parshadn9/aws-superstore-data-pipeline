@@ -1,5 +1,5 @@
 # --- S3 Bucket for Storing Data and Athena Logs ---
-resource "aws_s3_bucket" "superstore_bucket" {
+resource "aws_s3_bucket" "luffybucketonepiece" {
   bucket = var.bucket_name
 
   tags = {
