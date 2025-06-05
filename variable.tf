@@ -12,11 +12,10 @@ variable "aws_profile" {
   default     = "luffy"
 }
 
-# S3 Bucket Name
 variable "bucket_name" {
   description = "The name of the S3 bucket"
   type        = string
-  default     = "luffybucketonepiece"
+  default     = "luffybucketonepiece"  
 }
 
 # Glue Database Name
