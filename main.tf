@@ -40,8 +40,7 @@ resource "aws_glue_crawler" "crawler" {
   name          = "luffyhourly"
   role          = aws_iam_role.glue_role.arn
   database_name = aws_glue_catalog_database.glue_db.name
-  schedule      = "cron(0 * * * ? *)"  # Every hour
-
+  
   s3_target {
     path = "s3://${aws_s3_bucket.data.bucket}/orders/"
   }
