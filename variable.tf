@@ -1,15 +1,15 @@
 # AWS Region
 variable "aws_region" {
-  description = "The AWS region to deploy resources in"
+  description = "AWS region"
   type        = string
   default     = "ap-southeast-2"  # Sydney
 }
 
 # AWS CLI Profile Name (optional, used if not default)
 variable "aws_profile" {
-  description = "AWS CLI named profile to use for authentication"
+  description = "AWS CLI named profile"
   type        = string
-  default     = "default"
+  default     = "luffy"
 }
 
 # S3 Bucket Name
