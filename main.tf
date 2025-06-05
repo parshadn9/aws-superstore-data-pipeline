@@ -50,3 +50,12 @@ resource "aws_glue_crawler" "crawler" {
     aws_s3_bucket_object.orders_prefix
   ]
 }
+# Athena Workgroup (optional but helpful for logging)
+resource "aws_athena_workgroup" "luffy_workgroup" {
+  name = "luffy_analytics"
+
+  configuration {
+    result_configuration {
+      output_location = "s3://${aws_s3_bucket.data.bucket}/athena_logs/"
+    }
+  }
