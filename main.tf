@@ -1,80 +1,41 @@
-# --- S3 Bucket for Storing Data and Athena Logs ---
-resource "aws_s3_bucket" "luffybucketonepiece" {
-  bucket = var.bucket_name
-
-  tags = {
-    Name        = "Superstore Data Bucket"
-    Environment = "Dev"
-  }
+variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "ap-southeast-2"
 }
 
-# Create an 'athena_logs/' folder in the S3 bucket
-resource "aws_s3_bucket_object" "athena_output_folder" {
-  bucket = aws_s3_bucket.superstore_bucket.id
-  key    = "athena_logs/"  # Creates a folder-like path
+variable "aws_profile" {
+  description = "AWS CLI profile"
+  type        = string
+  default     = "default"
 }
 
-# --- IAM Role for Glue ---
-resource "aws_iam_role" "glue_service_role" {
-  name = "AWSGlueServiceRole-luffyhour"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "glue.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
+variable "bucket_name" {
+  description = "S3 bucket name for storing Super Store data"
+  type        = string
+  default     = "luffybucketonepiece"
 }
 
-# Attach Glue Service Policy
-resource "aws_iam_role_policy_attachment" "glue_policy_attach" {
-  role       = aws_iam_role.glue_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+variable "iam_user_name" {
+  description = "IAM user name"
+  type        = string
+  default     = "Luffy"
 }
 
-resource "aws_glue_crawler" "superstore_crawler" {
-  name          = "luffyhourly"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = var.database_name
-  schedule      = "cron(0 * * * ? *)"  # Runs every hour
-
-  s3_target {
-    path = "s3://${aws_s3_bucket.superstore_bucket.bucket}/orders/"
-  }
-
-  configuration = jsonencode({
-    Version = 1.0,
-    CrawlerOutput = {
-      Partitions = {
-        AddOrUpdateBehavior = "InheritFromTable"
-      }
-    },
-    Grouping = {
-      TableGroupingPolicy = "CombineCompatibleSchemas"
-    }
-  })
+variable "glue_db_name" {
+  description = "Glue catalog database name"
+  type        = string
+  default     = "db_luffyonepiece"
 }
 
-# --- Athena Database ---
-resource "aws_athena_database" "superstore_athena_db" {
-  name   = var.athena_database_name
-  bucket = aws_s3_bucket.superstore_bucket.id
+variable "glue_crawler_name" {
+  description = "Glue crawler name"
+  type        = string
+  default     = "luffyhourly"
 }
 
-# --- Athena Workgroup ---
-resource "aws_athena_workgroup" "superstore_workgroup" {
-  name = "luffy-workgroup"
-
-  configuration {
-    result_configuration {
-      output_location = "s3://${aws_s3_bucket.superstore_bucket.bucket}/athena_logs/"
-    }
-  }
-
-  force_destroy = true
-  state         = "ENABLED"
+variable "glue_role_name" {
+  description = "IAM role for Glue"
+  type        = string
+  default     = "AWSGlueServiceRole-luffyhour"
 }
