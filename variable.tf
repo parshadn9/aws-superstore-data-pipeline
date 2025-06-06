@@ -1,46 +1,41 @@
-# AWS Region
 variable "aws_region" {
-  description = "AWS region"
+  description = "AWS region to deploy resources"
   type        = string
-  default     = "ap-southeast-2"  # Sydney
+  default     = "ap-southeast-2"
 }
 
-# AWS CLI Profile Name (optional, used if not default)
 variable "aws_profile" {
-  description = "AWS CLI named profile"
+  description = "AWS CLI profile"
   type        = string
-  default     = "luffy"
+  default     = "default"
 }
 
 variable "bucket_name" {
-  description = "The name of the S3 bucket"
+  description = "S3 bucket name for storing Super Store data"
   type        = string
-  default     = "luffybucketonepiece"  
+  default     = "luffybucketonepiece"
 }
 
-# Glue Database Name
-variable "glue_database_name" {
-  description = "Name of the AWS Glue database"
+variable "iam_user_name" {
+  description = "IAM user name"
+  type        = string
+  default     = "Luffy"
+}
+
+variable "glue_db_name" {
+  description = "Glue catalog database name"
   type        = string
   default     = "db_luffyonepiece"
 }
 
-# Glue Crawler Name
 variable "glue_crawler_name" {
-  description = "Name of the AWS Glue crawler"
+  description = "Glue crawler name"
   type        = string
   default     = "luffyhourly"
 }
 
-# Glue IAM Role Name
 variable "glue_role_name" {
-  description = "IAM role name used by Glue crawler"
+  description = "IAM role for Glue"
   type        = string
   default     = "AWSGlueServiceRole-luffyhour"
-}
-
-# Athena Database Name
-variable "athena_database_name" {
-  description = "Name for Athena database"
-  default     = "db_luffyonepiece"
 }
