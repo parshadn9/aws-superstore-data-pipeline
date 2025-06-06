@@ -19,7 +19,7 @@ variable "bucket_name" {
 variable "iam_user_name" {
   description = "IAM user name"
   type        = string
-  default     = "Luffy"
+  default     = "luffyonepiece"
 }
 
 variable "glue_db_name" {
