@@ -1,41 +1,25 @@
+# --- AWS Region ---
 variable "aws_region" {
-  description = "AWS region to deploy resources"
+  description = "The AWS region to deploy resources in"
   type        = string
   default     = "ap-southeast-2"
 }
 
+# --- AWS CLI Profile ---
 variable "aws_profile" {
-  description = "AWS CLI profile"
+  description = "AWS CLI named profile"
   type        = string
-  default     = ""
+  default     = "default"
 }
 
+# --- S3 Bucket Name ---
 variable "bucket_name" {
-  description = "S3 bucket name for storing Super Store data"
+  description = "The name of the S3 bucket to be created"
   type        = string
-  default     = "luffybucketonepiece"
 }
 
-variable "iam_user_name" {
-  description = "IAM user name"
+# --- Glue Database Name ---
+variable "glue_database_name" {
+  description = "Name of the AWS Glue catalog database"
   type        = string
-  default     = "luffyonepiece"
-}
-
-variable "glue_db_name" {
-  description = "Glue catalog database name"
-  type        = string
-  default     = "db_luffyonepiece"
-}
-
-variable "glue_crawler_name" {
-  description = "Glue crawler name"
-  type        = string
-  default     = "luffyhourly"
-}
-
-variable "glue_role_name" {
-  description = "IAM role for Glue"
-  type        = string
-  default     = "AWSGlueServiceRole-luffyhour"
 }
