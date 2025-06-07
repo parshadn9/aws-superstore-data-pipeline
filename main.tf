@@ -1,8 +1,6 @@
-
-
-# --- S3 Bucket for Storing Data and Athena Logs ---
+# --- S3 Bucket for Superstore Data and Athena Logs ---
 resource "aws_s3_bucket" "superstore_bucket" {
-  bucket = var.bucket_name
+  bucket = "luffy-superstore-bucket-2025"
 
   tags = {
     Name        = "Superstore Data Bucket"
@@ -10,73 +8,43 @@ resource "aws_s3_bucket" "superstore_bucket" {
   }
 }
 
-# --- Athena Logs Folder ---
-resource "aws_s3_object" "athena_logs" {
-  bucket  = aws_s3_bucket.superstore_bucket.bucket
-  key     = "athena_logs/"
-  content = "" # Required to create an empty object
-}
-
-# --- Use Existing IAM User (Import Before Applying) ---
-resource "aws_iam_user" "admin_user" {
-  name = "luffyonepiece"
-}
-
-# --- Attach Admin Policy to Existing User ---
-resource "aws_iam_user_policy_attachment" "admin_access" {
-  user       = aws_iam_user.admin_user.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+# Create Athena log folder in the bucket
+resource "aws_s3_bucket_object" "athena_logs_folder" {
+  bucket = aws_s3_bucket.superstore_bucket.id
+  key    = "athena_logs/"  # Creates folder-like path
 }
 
 # --- Glue Catalog Database ---
 resource "aws_glue_catalog_database" "superstore_db" {
-  name = var.glue_database_name
+  name = "superstore_db"
 }
 
-# --- IAM Role for Glue Service ---
+# --- IAM Role for AWS Glue ---
 resource "aws_iam_role" "glue_service_role" {
-  name = "AWSGlueServiceRole-luffyhourzoro"
+  name = "AWSGlueServiceRole-luffyhour"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "glue.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "glue.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
   })
 }
 
-# --- Attach Glue Service Policy ---
-resource "aws_iam_role_policy_attachment" "glue_service_policy" {
+# Attach Glue Managed Policy to Glue Role
+resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
   role       = aws_iam_role.glue_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-# --- AWS Glue Crawler ---
-resource "aws_glue_crawler" "crawler" {
-  name          = "luffyhourly"
-  role          = aws_iam_role.glue_service_role.arn
-  database_name = aws_glue_catalog_database.superstore_db.name
-
-  s3_target {
-    path = "s3://${aws_s3_bucket.superstore_bucket.bucket}/data/"
-  }
-
-  schedule = "cron(0 * * * ? *)"
-}
-
-# --- Athena WorkGroup (Custom) ---
-resource "aws_athena_workgroup" "custom_wg" {
-  name = "luffy_workgroup"
-
-  configuration {
-    result_configuration {
-      output_location = "s3://${aws_s3_bucket.superstore_bucket.bucket}/athena_logs/"
-    }
-  }
-
-  state = "ENABLED"
+# --- IAM Policy Attachment for Existing User (luffyonepiece) ---
+resource "aws_iam_user_policy_attachment" "luffyonepiece_admin" {
+  user       = "luffyonepiece"
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }

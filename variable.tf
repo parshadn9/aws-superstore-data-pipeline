@@ -1,27 +1,34 @@
-# --- AWS Region ---
+# AWS Region to deploy resources
 variable "aws_region" {
-  description = "AWS region where resources will be deployed"
+  description = "The AWS region where resources will be deployed"
   type        = string
   default     = "ap-southeast-2"
 }
 
-# --- AWS CLI Profile ---
-variable "aws_profile" {
-  description = "AWS CLI named profile (used locally)"
-  type        = string
-  default     = "default"
-}
-
-# --- S3 Bucket Name ---
+# S3 Bucket Name for storing Superstore data and Athena logs
 variable "bucket_name" {
-  description = "The globally unique name of the S3 bucket"
+  description = "The name of the S3 bucket to create or manage"
   type        = string
   default     = "luffy-superstore-bucket-2025"
 }
 
-# --- Glue Database Name ---
+# Glue Catalog Database Name
 variable "glue_database_name" {
-  description = "Name of the Glue catalog database"
+  description = "The name of the Glue catalog database"
   type        = string
   default     = "superstore_db"
+}
+
+# Glue IAM Role Name
+variable "glue_role_name" {
+  description = "The name of the IAM role for AWS Glue"
+  type        = string
+  default     = "AWSGlueServiceRole-luffyhour"
+}
+
+# Existing IAM User Name (used for attaching policies only)
+variable "iam_user_name" {
+  description = "The name of the existing IAM user to attach policies to"
+  type        = string
+  default     = "luffyonepiece"
 }
