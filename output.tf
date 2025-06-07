@@ -1,19 +1,11 @@
-output "s3_bucket_name" {
-  description = "Name of the S3 bucket"
-  value       = aws_s3_bucket.superstore_bucket.id
+output "bucket_name" {
+  value = aws_s3_bucket.superstore_bucket.bucket
 }
 
-output "iam_user_name" {
-  description = "IAM user created"
-  value       = aws_iam_user.admin_user.name
+output "glue_database_name" {
+  value = aws_glue_catalog_database.superstore_db.name
 }
 
-output "glue_crawler_name" {
-  description = "Glue crawler"
-  value       = aws_glue_crawler.crawler.name
-}
-
-output "athena_output_location" {
-  description = "Athena output S3 location"
-  value       = "s3://${var.bucket_name}/athena_logs/"
+output "glue_service_role" {
+  value = aws_iam_role.glue_service_role.name
 }
