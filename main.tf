@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "superstore_bucket" {
 # --- S3 Object for Athena logs (folder simulation) ---
 resource "aws_s3_bucket_object" "athena_logs_folder" {
   bucket = aws_s3_bucket.superstore_bucket.id
-  key    = "athena_logs/"  # This simulates a folder inside the bucket
+  key = "athena_logs/"  # This simulates a folder inside the bucket
 }
 
 # --- Glue Catalog Database ---
