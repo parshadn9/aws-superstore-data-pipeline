@@ -1,4 +1,5 @@
+# Configure the AWS Provider
 provider "aws" {
-  region = var.aws_region
-  profile = can(var.aws_profile) && var.aws_profile != "" ? var.aws_profile : null
+  region  = var.aws_region
+  profile = var.aws_profile # Optional: use AWS CLI named profile
 }
