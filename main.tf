@@ -1,8 +1,4 @@
-# --- AWS Provider ---
-provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
-}
+
 
 # --- S3 Bucket for Storing Data and Athena Logs ---
 resource "aws_s3_bucket" "superstore_bucket" {
