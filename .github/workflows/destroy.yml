@@ -1,11 +1,17 @@
-name: 💣 Terraform Destroy - Super Store AWS Project
+name: 🚀 Terraform Deploy - Super Store AWS Project
 
 on:
-  workflow_dispatch:  # Manual trigger from GitHub UI only
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual runs from GitHub UI
 
 jobs:
-  terraform-destroy:
-    name: 🧨 Terraform Destroy
+  terraform:
+    name: 🛠️ Terraform Plan & Apply
     runs-on: ubuntu-latest
 
     env:
@@ -30,5 +36,19 @@ jobs:
       - name: 📦 Terraform Init
         run: terraform init
 
-      - name: 🧨 Terraform Destroy (Auto-Approve)
+      - name: 🧹 Terraform Format Check
+        run: terraform fmt -check
+
+      - name: ✅ Terraform Validate
+        run: terraform validate
+
+      - name: 🧪 Terraform Plan
+        run: terraform plan
+
+      - name: 🚀 Terraform Apply (Auto-Approve)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
+
+      - name: 🧹 Terraform Destroy (If needed)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform destroy -auto-approve
