@@ -1,27 +1,25 @@
-
-
-# --- S3 Bucket for Data Storage ---
+# --- S3 Bucket ---
 resource "aws_s3_bucket" "superstore_bucket" {
   bucket = var.bucket_name
 
   tags = {
-    Name        = "Superstore Data Bucket"
+    Name        = "Superstore Data Bucket v2"
     Environment = "Dev"
   }
 }
 
-# --- S3 Object for Athena logs (folder simulation) ---
+# --- Athena logs folder ---
 resource "aws_s3_bucket_object" "athena_logs_folder" {
   bucket = aws_s3_bucket.superstore_bucket.id
-  key    = "athena_logs/" # This simulates a folder inside the bucket
+  key    = "athena_logs/"
 }
 
-# --- Glue Catalog Database ---
+# --- Glue Database ---
 resource "aws_glue_catalog_database" "superstore_db" {
   name = var.glue_database_name
 }
 
-# --- IAM Role for AWS Glue ---
+# --- IAM Role for Glue ---
 resource "aws_iam_role" "glue_service_role" {
   name = var.glue_role_name
 
@@ -37,21 +35,21 @@ resource "aws_iam_role" "glue_service_role" {
   })
 }
 
-# --- Attach Glue Service Policy to IAM Role ---
+# --- Attach Glue Policy ---
 resource "aws_iam_role_policy_attachment" "glue_service_policy" {
   role       = aws_iam_role.glue_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-# --- Glue Crawler to scan S3 data ---
+# --- Glue Crawler ---
 resource "aws_glue_crawler" "superstore_crawler" {
-  name          = "superstore-crawler"
+  name          = "superstore-crawler-v2"
   role          = aws_iam_role.glue_service_role.arn
   database_name = aws_glue_catalog_database.superstore_db.name
-  table_prefix  = "superstore_"
+  table_prefix  = "superstore_v2_"
 
   s3_target {
-    path = "s3://${var.bucket_name}/raw/"
+    path = "s3://${aws_s3_bucket.superstore_bucket.bucket}/orders/"
   }
 
   configuration = jsonencode({
@@ -69,13 +67,8 @@ resource "aws_glue_crawler" "superstore_crawler" {
   ]
 }
 
-# --- IAM User Resource (Optional, if needed) ---
-resource "aws_iam_user" "admin_user" {
-  name = var.iam_user_name
-}
-
-# --- IAM Policy Attachment to IAM User ---
+# --- IAM User Policy Attachment for Existing User ---
 resource "aws_iam_user_policy_attachment" "admin_user_policy" {
-  user       = aws_iam_user.admin_user.name
+  user       = var.iam_user_name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
