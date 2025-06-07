@@ -1,0 +1,34 @@
+name: 💣 Terraform Destroy - Super Store AWS Project
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI only
+
+jobs:
+  terraform-destroy:
+    name: 🧨 Terraform Destroy
+    runs-on: ubuntu-latest
+
+    env:
+      aws_region: ap-southeast-2
+
+    steps:
+      - name: 🧾 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🔧 Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.aws_region }}
+
+      - name: 📦 Terraform Init
+        run: terraform init
+
+      - name: 🧨 Terraform Destroy (Auto-Approve)
+        run: terraform destroy -auto-approve
