@@ -19,7 +19,7 @@ resource "aws_s3_object" "athena_logs" {
 
 # --- Use Existing IAM User (Import Before Applying) ---
 resource "aws_iam_user" "admin_user" {
-  name = "onepieceluffy"
+  name = "luffyonepiece"
 }
 
 # --- Attach Admin Policy to Existing User ---
