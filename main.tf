@@ -1,6 +1,4 @@
-provider "aws" {
-  region = var.aws_region
-}
+
 
 # --- S3 Bucket for Data Storage ---
 resource "aws_s3_bucket" "superstore_bucket" {
