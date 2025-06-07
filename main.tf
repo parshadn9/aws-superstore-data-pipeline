@@ -35,7 +35,7 @@ resource "aws_glue_catalog_database" "superstore_db" {
 
 # --- IAM Role for Glue Service ---
 resource "aws_iam_role" "glue_service_role" {
-  name = "AWSGlueServiceRole-luffyhour"
+  name = "AWSGlueServiceRole-luffyhourzoro"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
