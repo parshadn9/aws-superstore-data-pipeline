@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "superstore_bucket" {
 # Create Athena log folder in the bucket
 resource "aws_s3_bucket_object" "athena_logs_folder" {
   bucket = aws_s3_bucket.superstore_bucket.id
-  key    = "athena_logs/"  # Creates folder-like path
+  key    = "athena_logs/" # Creates folder-like path
 }
 
 # --- Glue Catalog Database ---
